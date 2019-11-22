@@ -10,7 +10,7 @@ public interface LeaveService {
 	 * 新增一条请假单记录
 	 * @param entity
 	 */
-	void addLeaveAInfo(String msg);
+	void addLeaveAInfo(String msg,String processKey);
 	/**
 	 * 查询待办流程
 	 * @param userId

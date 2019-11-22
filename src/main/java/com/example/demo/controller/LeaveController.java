@@ -35,8 +35,8 @@ public class LeaveController {
      * @return
      */
     @RequestMapping("/addLeaveInfo")
-    public String addLeaveInfo(String msg, HttpServletRequest request, Model model) {
-        leaveService.addLeaveAInfo(msg);
+    public String addLeaveInfo(String msg, String processKey,HttpServletRequest request, Model model) {
+        leaveService.addLeaveAInfo(msg,processKey);
         return "新增成功...";
     }
 

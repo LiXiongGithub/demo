@@ -46,11 +46,11 @@ public class TestLeaveService {
 	 * 启动流程
 	 * 
 	 */
-	public void startProcess(String bizKey) {
+	public void startProcess(String bizKey,String processKey) {
 
 		// 第一个参数是指定启动流程的id,即要启动哪个流程 ;第二个参数是指业务id
 		System.out.println("启动前-----");
-		runtimeService.startProcessInstanceByKey("leaveProcess", bizKey);
+		runtimeService.startProcessInstanceByKey(processKey, bizKey);
 		System.out.println("启动之后------");
 	}
 

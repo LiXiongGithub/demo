@@ -25,7 +25,7 @@ public class LeaveServiceImpl implements LeaveService {
 	@Autowired
 	private RuntimeService runtimeService;
 	@Override
-	public void addLeaveAInfo(String msg) {
+	public void addLeaveAInfo(String msg,String processKey) {
 		LeaveInfo leaveInfo = new LeaveInfo();
 		leaveInfo.setLeaveMsg(msg);
 		String id = UUID.randomUUID().toString();
@@ -33,7 +33,7 @@ public class LeaveServiceImpl implements LeaveService {
 		//新增一条记录至数据库中
 		leaveMapper.insert(leaveInfo);
 		//启动流程引擎
-		testLeaveService.startProcess(id);
+		testLeaveService.startProcess(id,processKey);
 	}
 
 	@Override
