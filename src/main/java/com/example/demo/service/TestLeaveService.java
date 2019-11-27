@@ -1,11 +1,15 @@
 package com.example.demo.service;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.engine.FormService;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.ManagementService;
@@ -14,15 +18,22 @@ import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
+import org.activiti.image.impl.DefaultProcessDiagramGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dao.LeaveMapper;
 import com.example.demo.entity.LeaveInfo;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service("leaveService")
 public class TestLeaveService {
 	@Autowired
@@ -46,7 +57,7 @@ public class TestLeaveService {
 	 * 启动流程
 	 * 
 	 */
-	public void startProcess(String bizKey,String processKey) {
+	public void startProcess(String bizKey, String processKey) {
 
 		// 第一个参数是指定启动流程的id,即要启动哪个流程 ;第二个参数是指业务id
 		System.out.println("启动前-----");
@@ -198,7 +209,7 @@ public class TestLeaveService {
 
 	/**
 	 * 获取流程图
-	 * 
+	 * act_re_procdef表中的id字段
 	 * @param processDefId
 	 * @return
 	 * @throws Exception
@@ -210,4 +221,15 @@ public class TestLeaveService {
 		InputStream imageStream = repositoryService.getResourceAsStream(procDef.getDeploymentId(), diagramResourceName);
 		return imageStream;
 	}
+
+	public InputStream getImgStream(String busKey) {
+		ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(busKey)
+				.singleResult();
+		BpmnModel bpmnModel = repositoryService.getBpmnModel(processInstance.getProcessDefinitionId());
+		List activeActivityIds = runtimeService.getActiveActivityIds(processInstance.getId());
+		InputStream imageStream = new DefaultProcessDiagramGenerator().generateDiagram(bpmnModel, "png",
+				activeActivityIds, new ArrayList<>(), "宋体", "宋体", "宋体", null, 1.0);
+		return imageStream;
+	}
+
 }

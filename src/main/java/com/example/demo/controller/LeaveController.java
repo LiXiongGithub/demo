@@ -1,102 +1,121 @@
 package com.example.demo.controller;
 
 import java.io.InputStream;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.image.impl.DefaultProcessDiagramGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.service.LeaveService;
 import com.example.demo.service.TestLeaveService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
+@Slf4j
 public class LeaveController {
 
-    private static final Logger logger = LoggerFactory.getLogger(LeaveController.class);
-    @Autowired
-    private LeaveService leaveService;
-    @Autowired 
-    private TestLeaveService testLeaveService;
-    
+	@Autowired
+	private LeaveService leaveService;
+	@Autowired
+	private TestLeaveService testLeaveService;
 
-    /**
-     * 发起申请，新增信息
-     *
-     * @param msg
-     * @param request
-     * @param model
-     * @return
-     */
-    @RequestMapping("/addLeaveInfo")
-    public String addLeaveInfo(String msg, String processKey,HttpServletRequest request, Model model) {
-        leaveService.addLeaveAInfo(msg,processKey);
-        return "新增成功...";
-    }
+	/**
+	 * 发起申请，新增信息
+	 *
+	 * @param msg
+	 * @param request
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping("/addLeaveInfo")
+	public String addLeaveInfo(String msg, String processKey, HttpServletRequest request, Model model) {
+		leaveService.addLeaveAInfo(msg, processKey);
+		return "新增成功...";
+	}
 
-    /**
-     * 查询当前用户的任务列表
-     *
-     * @param userId
-     * @param request
-     * @return
-     */
-    @RequestMapping("/getTaskByUserId")
-    public Object getTaskByUserId(String userId, HttpServletRequest request) {
-        //System.out.println();
-        return leaveService.getByUserId(userId);
-    }
+	/**
+	 * 查询当前用户的任务列表
+	 *
+	 * @param userId
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping("/getTaskByUserId")
+	public Object getTaskByUserId(String userId, HttpServletRequest request) {
+		// System.out.println();
+		return leaveService.getByUserId(userId);
+	}
 
-    /**
-     * 处理完成任务
-     *
-     * @param taskId
-     * @param userId
-     * @param audit
-     * @param request
-     * @return
-     */
-    @RequestMapping("/completeTask")
-    public String completeTask(String taskId, String userId, String audit, HttpServletRequest request) {
-        leaveService.completeTaskByUser(taskId, userId, audit);
-        return "审批完成...";
-    }
+	/**
+	 * 处理完成任务
+	 *
+	 * @param taskId
+	 * @param userId
+	 * @param audit
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping("/completeTask")
+	public String completeTask(String taskId, String userId, String audit, HttpServletRequest request) {
+		leaveService.completeTaskByUser(taskId, userId, audit);
+		return "审批完成...";
+	}
 
+	// @RequestMapping("/showImg")
+	// public void showImg(String processDefId, HttpServletRequest request,
+	// HttpServletResponse response) {
+	//
+	// try {
+	// InputStream inputStream = TestLeaveService.findProcessPic(processDefId);
+	// byte[] b = new byte[1024];
+	// int len = -1;
+	// while ((len = inputStream.read(b, 0, 1024)) != -1) {
+	// response.getOutputStream().write(b, 0, len);
+	// }
+	// } catch (IOException e) {
+	// logger.error("读取流程图片出错", e);
+	// }
+	//
+	// }
+	@RequestMapping(value = "/shwoImg/{processDefId}")
+	public void shwoImg(@PathVariable String processDefId, HttpServletResponse response) {
+		try {
+			InputStream pic = testLeaveService.findProcessPic(processDefId);
 
-//    @RequestMapping("/showImg")
-//    public void showImg(String processDefId, HttpServletRequest request, HttpServletResponse response) {
-//
-//        try {
-//            InputStream inputStream = TestLeaveService.findProcessPic(processDefId);
-//            byte[] b = new byte[1024];
-//            int len = -1;
-//            while ((len = inputStream.read(b, 0, 1024)) != -1) {
-//                response.getOutputStream().write(b, 0, len);
-//            }
-//        } catch (IOException e) {
-//            logger.error("读取流程图片出错", e);
-//        }
-//
-//    }
-    @RequestMapping(value = "/shwoImg/{procDefId}")  
-    public void shwoImg(@PathVariable String procDefId,HttpServletResponse response){  
-        try {  
-            InputStream pic = testLeaveService.findProcessPic(procDefId);  
-              
-            byte[] b = new byte[1024];  
-            int len = -1;  
-            while((len = pic.read(b, 0, 1024)) != -1) {  
-                response.getOutputStream().write(b, 0, len);  
-            }  
-        } catch (Exception e) {  
-            e.printStackTrace();  
-        }  
-    }  
+			byte[] b = new byte[1024];
+			int len = -1;
+			while ((len = pic.read(b, 0, 1024)) != -1) {
+				response.getOutputStream().write(b, 0, len);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	// 流程跟踪，并高亮提示
+	// act_ru_execution表中的businesskey
+	@RequestMapping(value = "/track/{busKey}")
+	public void track(@PathVariable String busKey, HttpServletResponse response) throws Exception {
+		InputStream imageStream = testLeaveService.getImgStream(busKey);
+		// 输出资源内容到相应对象
+		byte[] b = new byte[1024];
+		int len;
+		while ((len = imageStream.read(b, 0, 1024)) != -1) {
+			response.getOutputStream().write(b, 0, len);
+		}
+	}
 
 }
