@@ -19,21 +19,22 @@ import com.example.demo.service.LeaveService;
 public class LeaveServiceImpl implements LeaveService {
 
 	@Autowired
-	private TestLeaveService  testLeaveService;
+	private TestLeaveService testLeaveService;
 	@Autowired
 	private LeaveMapper leaveMapper;
 	@Autowired
 	private RuntimeService runtimeService;
+
 	@Override
-	public void addLeaveAInfo(String msg,String processKey) {
+	public void addLeaveAInfo(String msg, String processKey) {
 		LeaveInfo leaveInfo = new LeaveInfo();
 		leaveInfo.setLeaveMsg(msg);
 		String id = UUID.randomUUID().toString();
 		leaveInfo.setId(id);
-		//新增一条记录至数据库中
+		// 新增一条记录至数据库中
 		leaveMapper.insert(leaveInfo);
-		//启动流程引擎
-		testLeaveService.startProcess(id,processKey);
+		// 启动流程引擎
+		testLeaveService.startProcess(id, processKey);
 	}
 
 	@Override
@@ -41,11 +42,16 @@ public class LeaveServiceImpl implements LeaveService {
 		ArrayList<LeaveInfo> leaveInfoList = new ArrayList<>();
 		List<Task> list = testLeaveService.findTaskByUserId(userId);
 		for (Task task : list) {
-			ProcessInstance result = runtimeService.createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
-			//获得业务流程的bussinessKey
+			ProcessInstance result = runtimeService.createProcessInstanceQuery()
+					.processInstanceId(task.getProcessInstanceId()).singleResult();
+			// 获得业务流程的bussinessKey
 			String businessKey = result.getBusinessKey();
 			LeaveInfo leaveInfo = leaveMapper.getById(businessKey);
 			leaveInfo.setTaskId(task.getId());
+			// TODO 测试变量
+			// String reason=(String) runtimeService.getVariable(task.getExecutionId(),
+			// "reason");
+			// System.out.println(reason);
 			leaveInfoList.add(leaveInfo);
 		}
 		return leaveInfoList;

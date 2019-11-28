@@ -61,7 +61,11 @@ public class TestLeaveService {
 
 		// 第一个参数是指定启动流程的id,即要启动哪个流程 ;第二个参数是指业务id
 		System.out.println("启动前-----");
-		runtimeService.startProcessInstanceByKey(processKey, bizKey);
+		// Map<String, Object> variables = new HashMap<String, Object>();
+		// variables.put("days", 2);
+		// variables.put("reason", "发烧");
+		// runtimeService.startProcessInstanceByKey(processKey, bizKey, variables);
+		// runtimeService.startProcessInstanceByKey(processKey, bizKey);
 		System.out.println("启动之后------");
 	}
 
@@ -208,8 +212,8 @@ public class TestLeaveService {
 			 */
 
 	/**
-	 * 获取流程图
-	 * act_re_procdef表中的id字段
+	 * 获取流程图 act_re_procdef表中的id字段
+	 * 
 	 * @param processDefId
 	 * @return
 	 * @throws Exception
