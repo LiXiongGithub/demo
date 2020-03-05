@@ -121,7 +121,7 @@
         <!--mybatis日志级别-->
         <!--<logger name="org.mybatis" level="INFO" additivity="false"/>-->
         <!--包或类的日志级别-->
-        <!--<logger name="com.sunjinke.slf4jlog4j2demo" level="INFO" additivity="false">-->
+        <!--<logger name="com.lx.slf4jlog4j2demo" level="INFO" additivity="false">-->
         <!--<appender-ref ref="INFO_LOG" />-->
         <!--</logger>-->
     </Loggers>
